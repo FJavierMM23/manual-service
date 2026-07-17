@@ -2,6 +2,8 @@ package es.urjc.manualservice.shared;
 
 import es.urjc.manualservice.asignatura.AsignaturaNotFoundException;
 import es.urjc.manualservice.asignatura.SiglasDuplicadaException;
+import es.urjc.manualservice.documento.DocumentoNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,5 +33,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST, errores);
         pd.setTitle("Error de validación");
         return pd;
+    }
+
+    @ExceptionHandler(DocumentoNotFoundException.class)
+    public ProblemDetail documentoNoEncontrado(
+            es.urjc.manualservice.documento.DocumentoNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail argumentoInvalido(IllegalArgumentException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 }
