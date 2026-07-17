@@ -1,13 +1,12 @@
 package es.urjc.manualservice.aiservice;
 
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-
 @Component
 public class AiServiceClient {
 
@@ -39,18 +38,16 @@ public class AiServiceClient {
     public void indexDocument(byte[] fileBytes, String filename, String metadataJson) {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
-        // El fichero, con su nombre. ByteArrayResource + getFilename() hace que
-        // llegue como multipart "file" con nombre, igual que un curl -F "file=@..."
-        Resource fileResource = new ByteArrayResource(fileBytes) {
-            @Override
-            public String getFilename() {
-                return filename;
-            }
-        };
-        parts.add("file", fileResource);
+        // Parte "file": Content-Disposition con filename EXPLÍCITO.
+        // Esto es lo que faltaba: sin filename, FastAPI no la trata como UploadFile.
+        HttpHeaders fileHeaders = new HttpHeaders();
+        fileHeaders.setContentDispositionFormData("file", filename);
+        fileHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        parts.add("file", new HttpEntity<>(fileBytes, fileHeaders));
 
+        // Parte "metadata": string JSON como campo de formulario normal
         if (metadataJson != null) {
-            parts.add("metadata", metadataJson);   // el campo Form "metadata" de ai-service
+            parts.add("metadata", metadataJson);
         }
 
         restClient.post()
@@ -58,6 +55,6 @@ public class AiServiceClient {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(parts)
                 .retrieve()
-                .toBodilessEntity();   // no nos interesa el cuerpo, solo que no falle
+                .toBodilessEntity();
     }
 }
