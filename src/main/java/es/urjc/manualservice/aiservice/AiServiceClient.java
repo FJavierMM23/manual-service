@@ -1,5 +1,7 @@
 package es.urjc.manualservice.aiservice;
 
+import java.util.Map;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -56,5 +58,18 @@ public class AiServiceClient {
                 .body(parts)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    public QueryResponse query(String question, String asignaturaSiglas) {
+        Map<String, String> filters = (asignaturaSiglas == null || asignaturaSiglas.isBlank())
+                ? null
+                : Map.of("asignatura", asignaturaSiglas);
+
+        return restClient.post()
+                .uri("/query")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new QueryRequest(question, filters))
+                .retrieve()
+                .body(QueryResponse.class);
     }
 }
