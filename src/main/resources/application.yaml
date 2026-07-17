@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/manuales}
+    username: ${DB_USER:manuales}
+    password: ${DB_PASSWORD:cambiame}
+  jpa:
+    hibernate:
+      ddl-auto: validate      # Flyway crea el esquema; Hibernate solo valida
+    open-in-view: false        # buena práctica: evita queries perezosas fuera de transacción
+  flyway:
+    enabled: true
+
+ai-service:
+  url: ${AI_SERVICE_URL:http://localhost:8000}
