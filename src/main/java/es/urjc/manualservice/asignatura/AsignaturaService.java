@@ -1,5 +1,7 @@
 package es.urjc.manualservice.asignatura;
 
+import es.urjc.manualservice.documento.DocumentoResponse;
+import es.urjc.manualservice.documento.DocumentoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,9 +11,11 @@ import java.util.List;
 public class AsignaturaService {
 
     private final AsignaturaRepository repository;
+    private final DocumentoService documentoService;
 
-    public AsignaturaService(AsignaturaRepository repository) {
+    public AsignaturaService(AsignaturaRepository repository, DocumentoService documentoService) {
         this.repository = repository;
+        this.documentoService = documentoService;
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +47,6 @@ public class AsignaturaService {
         Asignatura a = repository.findById(id)
                 .orElseThrow(() -> new AsignaturaNotFoundException(id));
 
-        // Si cambian las siglas a unas que ya usa OTRA asignatura → conflicto
         repository.findBySiglas(req.siglas())
                 .filter(otra -> !otra.getId().equals(id))
                 .ifPresent(otra -> { throw new SiglasDuplicadaException(req.siglas()); });
@@ -52,13 +55,19 @@ public class AsignaturaService {
         a.setSiglas(req.siglas());
         a.setCurso(req.curso());
         a.setCuatrimestre(req.cuatrimestre());
-        return AsignaturaResponse.from(a);   // dirty checking: no hace falta save()
+        return AsignaturaResponse.from(a);
     }
 
+    /**
+     * Elimina la asignatura y, en cascada, todos sus documentos (Postgres +
+     * ai-service + disco), reutilizando DocumentoService.eliminar() por
+     * cada uno. listarPorAsignatura ya valida que la asignatura existe.
+     */
     @Transactional
     public void eliminar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new AsignaturaNotFoundException(id);
+        List<DocumentoResponse> documentos = documentoService.listarPorAsignatura(id);
+        for (DocumentoResponse doc : documentos) {
+            documentoService.eliminar(doc.id());
         }
         repository.deleteById(id);
     }

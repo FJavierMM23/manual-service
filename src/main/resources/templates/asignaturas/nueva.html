@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/comunes :: head('Nueva asignatura')}"></head>
+<body>
+<header th:replace="~{fragments/comunes :: nav}"></header>
+
+<main class="contenedor contenedor-estrecho">
+    <h1>Nueva asignatura</h1>
+
+    <form th:action="@{/asignaturas(volverA=${volverA})}" th:object="${asignaturaForm}" method="post" class="formulario">
+
+        <div class="campo">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" th:field="*{nombre}" placeholder="Programación Concurrente">
+            <span class="error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+        </div>
+
+        <div class="campo">
+            <label for="siglas">Siglas</label>
+            <input type="text" id="siglas" th:field="*{siglas}" placeholder="PC">
+            <span class="error" th:if="${#fields.hasErrors('siglas')}" th:errors="*{siglas}"></span>
+        </div>
+
+        <div class="campo">
+            <label for="curso">Curso</label>
+            <select id="curso" th:field="*{curso}">
+                <option value="">— Selecciona —</option>
+                <option value="1">1º</option>
+                <option value="2">2º</option>
+                <option value="3">3º</option>
+                <option value="4">4º</option>
+            </select>
+            <span class="error" th:if="${#fields.hasErrors('curso')}" th:errors="*{curso}"></span>
+        </div>
+
+        <div class="campo">
+            <label for="cuatrimestre">Cuatrimestre (opcional)</label>
+            <select id="cuatrimestre" th:field="*{cuatrimestre}">
+                <option value="">— Sin especificar —</option>
+                <option value="1">1º</option>
+                <option value="2">2º</option>
+            </select>
+        </div>
+
+        <div class="acciones">
+            <a th:href="${volverA == 'documentos'} ? @{/documentos/nuevo} : @{/asignaturas}" class="boton boton-secundario">Cancelar</a>
+            <button type="submit" class="boton">Crear asignatura</button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/comunes :: pie}"></footer>
+</body>
+</html>

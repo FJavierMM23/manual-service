@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/comunes :: head('Documentos')}"></head>
+<body>
+<header th:replace="~{fragments/comunes :: nav}"></header>
+
+<main class="contenedor">
+    <div class="cabecera-lista">
+        <h1>Documentos</h1>
+        <a th:href="@{/documentos/nuevo}" class="boton">+ Subir documento</a>
+    </div>
+
+    <form th:action="@{/documentos}" method="get" class="filtro">
+        <label for="asignaturaId">Filtrar por asignatura:</label>
+        <select id="asignaturaId" name="asignaturaId" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            <option th:each="a : ${asignaturas}"
+                    th:value="${a.id()}"
+                    th:text="${a.siglas()} + ' - ' + ${a.nombre()}"
+                    th:selected="${a.id() == asignaturaSeleccionada}">
+            </option>
+        </select>
+    </form>
+
+    <p th:if="${#lists.isEmpty(documentos)}" class="vacio">
+        No hay documentos<span th:if="${asignaturaSeleccionada != null}"> para esta asignatura</span>.
+    </p>
+
+    <table th:unless="${#lists.isEmpty(documentos)}" class="tabla">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Asignatura</th>
+                <th>Tema</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="d : ${documentos}">
+                <td th:text="${d.titulo()}">Apuntes</td>
+                <td><span class="chip" th:text="${d.asignaturaSiglas()}">PC</span></td>
+                <td th:text="${d.tema()} ?: '—'">—</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="'estado-' + ${d.estadoIndexacion().name().toLowerCase()}"
+                          th:text="${d.estadoIndexacion()}">PENDIENTE</span>
+                </td>
+                <td th:text="${#temporals.format(d.fechaSubida(), 'dd/MM/yyyy HH:mm')}">17/07/2026</td>
+                <td>
+                    <a th:if="${d.tieneArchivo()}"
+                       th:href="@{/api/documentos/{id}/archivo(id=${d.id()})}"
+                       target="_blank" class="boton-icono" title="Ver documento">👁</a>
+                    <form th:action="@{/documentos/{id}/eliminar(id=${d.id()})}" method="post"
+                          onsubmit="return confirm('¿Eliminar este documento?')"
+                          style="display:inline">
+                        <button type="submit" class="boton-icono" title="Eliminar">🗑</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer th:replace="~{fragments/comunes :: pie}"></footer>
+</body>
+</html>

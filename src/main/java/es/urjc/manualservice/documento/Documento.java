@@ -30,6 +30,9 @@ public class Documento {
     @Column(name = "fecha_subida", nullable = false)
     private OffsetDateTime fechaSubida;
 
+    @Column(name = "ruta_fichero", length = 500)
+    private String rutaFichero;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "asignatura_id", nullable = false)
     private Asignatura asignatura;
@@ -59,6 +62,8 @@ public class Documento {
     public EstadoIndexacion getEstadoIndexacion() { return estadoIndexacion; }
     public void setEstadoIndexacion(EstadoIndexacion estado) { this.estadoIndexacion = estado; }
     public OffsetDateTime getFechaSubida() { return fechaSubida; }
+    public String getRutaFichero() { return rutaFichero; }
+    public void setRutaFichero(String rutaFichero) { this.rutaFichero = rutaFichero; }
     public Asignatura getAsignatura() { return asignatura; }
     public void setAsignatura(Asignatura asignatura) { this.asignatura = asignatura; }
 }

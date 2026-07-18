@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/comunes :: head('Subir documento')}"></head>
+<body>
+<header th:replace="~{fragments/comunes :: nav}"></header>
+
+<main class="contenedor contenedor-estrecho">
+    <h1>Subir documento</h1>
+
+    <form th:action="@{/documentos}" th:object="${documentoForm}" method="post"
+          enctype="multipart/form-data" class="formulario">
+
+        <div class="campo">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" th:field="*{titulo}" placeholder="Apuntes de semáforos">
+            <span class="error" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></span>
+        </div>
+
+        <div class="campo">
+            <label for="asignaturaId">Asignatura</label>
+            <select id="asignaturaId" th:field="*{asignaturaId}">
+                <option value="">— Selecciona —</option>
+                <option th:each="a : ${asignaturas}"
+                        th:value="${a.id()}"
+                        th:text="${a.siglas()} + ' - ' + ${a.nombre()}">
+                </option>
+            </select>
+            <a th:href="@{/asignaturas/nueva(volverA='documentos')}" class="enlace-discreto">+ Crear nueva asignatura</a>
+            <span class="error" th:if="${#fields.hasErrors('asignaturaId')}" th:errors="*{asignaturaId}"></span>
+        </div>
+
+        <div class="campo">
+            <label for="tema">Tema (opcional)</label>
+            <input type="text" id="tema" th:field="*{tema}" placeholder="Semáforos">
+        </div>
+
+        <div class="campo">
+            <label for="file">Fichero</label>
+            <input type="file" id="file" name="file">
+            <span class="error" th:if="${#fields.hasErrors('file')}" th:errors="*{file}"></span>
+        </div>
+
+        <div class="acciones">
+            <a th:href="@{/documentos}" class="boton boton-secundario">Cancelar</a>
+            <button type="submit" class="boton">Subir e indexar</button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/comunes :: pie}"></footer>
+</body>
+</html>

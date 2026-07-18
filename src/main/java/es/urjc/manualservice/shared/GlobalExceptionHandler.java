@@ -2,6 +2,7 @@ package es.urjc.manualservice.shared;
 
 import es.urjc.manualservice.asignatura.AsignaturaNotFoundException;
 import es.urjc.manualservice.asignatura.SiglasDuplicadaException;
+import es.urjc.manualservice.documento.ArchivoNoDisponibleException;
 import es.urjc.manualservice.documento.DocumentoNotFoundException;
 
 import org.springframework.http.HttpStatus;
@@ -44,5 +45,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail argumentoInvalido(IllegalArgumentException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ArchivoNoDisponibleException.class)
+    public ProblemDetail archivoNoDisponible(
+            es.urjc.manualservice.documento.ArchivoNoDisponibleException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 }

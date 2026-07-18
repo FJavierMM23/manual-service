@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/comunes :: head('Inicio')}"></head>
+<body>
+<header th:replace="~{fragments/comunes :: nav}"></header>
+
+<main class="contenedor">
+    <h1>Asistente de estudio</h1>
+    <p class="intro">Sube tus apuntes, organízalos por asignatura y pregúntale a tus propios documentos.</p>
+
+    <div class="tarjetas">
+        <a th:href="@{/asignaturas}" class="tarjeta">
+            <h2>Asignaturas</h2>
+            <p>Gestiona las asignaturas de tu carrera.</p>
+        </a>
+        <a th:href="@{/documentos}" class="tarjeta">
+            <h2>Documentos</h2>
+            <p>Sube e indexa tus apuntes.</p>
+        </a>
+        <a th:href="@{/preguntar}" class="tarjeta">
+            <h2>Preguntar</h2>
+            <p>Haz preguntas y recibe respuestas citando tus fuentes.</p>
+        </a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/comunes :: pie}"></footer>
+</body>
+</html>

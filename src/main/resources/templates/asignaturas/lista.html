@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/comunes :: head('Asignaturas')}"></head>
+<body>
+<header th:replace="~{fragments/comunes :: nav}"></header>
+
+<main class="contenedor">
+    <div class="cabecera-lista">
+        <h1>Asignaturas</h1>
+        <a th:href="@{/asignaturas/nueva}" class="boton">+ Nueva asignatura</a>
+    </div>
+
+    <p th:if="${#lists.isEmpty(asignaturas)}" class="vacio">
+        Aún no hay asignaturas.
+    </p>
+
+    <table th:unless="${#lists.isEmpty(asignaturas)}" class="tabla">
+        <thead>
+            <tr>
+                <th>Siglas</th>
+                <th>Nombre</th>
+                <th>Curso</th>
+                <th>Cuatrimestre</th>
+                <th>Documentos</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="a : ${asignaturas}" th:with="numDocs=${conteoDocumentos.get(a.id())} ?: 0">
+                <td><span class="chip" th:text="${a.siglas()}">PC</span></td>
+                <td th:text="${a.nombre()}">Programación Concurrente</td>
+                <td th:text="${a.curso()}">2</td>
+                <td th:text="${a.cuatrimestre()} ?: '—'">2</td>
+                <td th:text="${numDocs}">0</td>
+                <td>
+                    <form th:action="@{/asignaturas/{id}/eliminar(id=${a.id()})}" method="post"
+                          th:attr="onsubmit=|return confirmarEliminarAsignatura('${#strings.escapeJavaScript(a.nombre())}', ${numDocs})|"
+                          style="display:inline">
+                        <button type="submit" class="boton-icono" title="Eliminar">🗑</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer th:replace="~{fragments/comunes :: pie}"></footer>
+
+<script>
+    function confirmarEliminarAsignatura(nombre, numDocumentos) {
+        var mensaje = '¿Eliminar la asignatura "' + nombre + '"?';
+        if (numDocumentos > 0) {
+            mensaje += '\n\nEsto eliminará también ' + numDocumentos +
+                (numDocumentos === 1 ? ' documento asociado' : ' documentos asociados') +
+                ' de forma permanente (también de ai-service).';
+        }
+        return confirm(mensaje);
+    }
+</script>
+</body>
+</html>

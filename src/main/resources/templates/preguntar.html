@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/comunes :: head('Preguntar')}"></head>
+<body>
+<header th:replace="~{fragments/comunes :: nav}"></header>
+
+<main class="contenedor chat-contenedor">
+    <div class="chat-cabecera">
+        <h1>Preguntar</h1>
+        <form th:action="@{/preguntar/nueva}" method="post" th:if="${!#lists.isEmpty(historial)}">
+            <button type="submit" class="boton-secundario boton-pequeno">🔄 Nueva conversación</button>
+        </form>
+    </div>
+
+    <div class="chat-ventana" id="chatVentana">
+        <div th:if="${#lists.isEmpty(historial)}" class="chat-vacio">
+            <p>Hazme una pregunta sobre tus apuntes 📚</p>
+        </div>
+
+        <div th:each="m : ${historial}" class="chat-turno">
+
+            <div class="fila-mensaje fila-usuario">
+                <div class="burbuja burbuja-usuario">
+                    <p th:text="${m.pregunta()}"></p>
+                </div>
+                <div class="avatar avatar-usuario">🧑</div>
+            </div>
+
+            <div class="fila-mensaje fila-asistente">
+                <div class="avatar avatar-asistente">🤖</div>
+                <div class="burbuja" th:classappend="${m.esError()} ? 'burbuja-error' : 'burbuja-asistente'">
+                    <p class="texto-respuesta"
+                       th:classappend="${m.esError()} ? '' : 'md-render'"
+                       th:text="${m.respuesta()}"></p>
+
+                    <div th:if="${!m.esError() and !#lists.isEmpty(m.fuentes())}" class="chat-fuentes">
+                        <span th:each="s, iter : ${m.fuentes()}" class="chip chip-fuente" th:title="${s.section()}">
+                            <span th:text="${s.source()}">documento.md</span><span th:if="${!iter.last}">, </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <form th:action="@{/preguntar}" method="post" class="chat-formulario" id="formPregunta">
+        <select name="asignaturaSiglas" class="chat-select">
+            <option value="">Todas</option>
+            <option th:each="a : ${asignaturas}"
+                    th:value="${a.siglas()}"
+                    th:text="${a.siglas()}"
+                    th:selected="${a.siglas() == asignaturaSiglas}">
+            </option>
+        </select>
+        <input type="text" name="pregunta" class="chat-input" placeholder="Escribe tu pregunta..."
+               required autocomplete="off" autofocus>
+        <button type="submit" class="boton-enviar" aria-label="Enviar">➤</button>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/comunes :: pie}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script>
+    // Renderiza markdown -> HTML en las respuestas del asistente, saneando el HTML resultante.
+    document.querySelectorAll('.md-render').forEach(function (el) {
+        var raw = el.textContent;              // texto original (Thymeleaf ya lo había escapado al pintar)
+        var html = marked.parse(raw);
+        el.innerHTML = DOMPurify.sanitize(html);
+    });
+
+    var ventana = document.getElementById('chatVentana');
+    if (ventana) ventana.scrollTop = ventana.scrollHeight;
+
+    var form = document.getElementById('formPregunta');
+    if (form) {
+        form.addEventListener('submit', function () {
+            var boton = form.querySelector('button[type="submit"]');
+            boton.disabled = true;
+            boton.textContent = '…';
+        });
+    }
+</script>
+</body>
+</html>

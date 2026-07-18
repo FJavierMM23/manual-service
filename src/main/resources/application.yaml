@@ -9,6 +9,11 @@ spring:
     open-in-view: false        # buena práctica: evita queries perezosas fuera de transacción
   flyway:
     enabled: true
+  thymeleaf:
+    cache: false
 
 ai-service:
   url: ${AI_SERVICE_URL:http://localhost:8000}
+
+documento:
+  storage-path: ${DOCUMENTO_STORAGE_PATH:./documentos-almacenados}

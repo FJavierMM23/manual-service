@@ -11,7 +11,8 @@ public record DocumentoResponse(
         EstadoIndexacion estadoIndexacion,
         OffsetDateTime fechaSubida,
         Long asignaturaId,
-        String asignaturaSiglas
+        String asignaturaSiglas,
+        boolean tieneArchivo
 ) {
     public static DocumentoResponse from(Documento d) {
         return new DocumentoResponse(
@@ -23,7 +24,8 @@ public record DocumentoResponse(
                 d.getEstadoIndexacion(),
                 d.getFechaSubida(),
                 d.getAsignatura().getId(),
-                d.getAsignatura().getSiglas()
+                d.getAsignatura().getSiglas(),
+                d.getRutaFichero() != null
         );
     }
 }

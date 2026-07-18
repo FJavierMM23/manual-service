@@ -1,7 +1,5 @@
 package es.urjc.manualservice.aiservice;
 
-import java.util.Map;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,6 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+
+import java.util.Map;
+
 @Component
 public class AiServiceClient {
 
@@ -18,7 +19,6 @@ public class AiServiceClient {
         this.restClient = aiServiceRestClient;
     }
 
-    /** Comprueba que ai-service (y su Ollama) están vivos. */
     public boolean isHealthy() {
         try {
             HealthResponse health = restClient.get()
@@ -27,27 +27,18 @@ public class AiServiceClient {
                     .body(HealthResponse.class);
             return health != null && "ok".equalsIgnoreCase(health.status());
         } catch (Exception e) {
-            return false;   // si no responde o falla, lo tratamos como no-sano
+            return false;
         }
     }
 
-    /**
-     * Sube e indexa un documento en ai-service.
-     * @param fileBytes contenido del fichero
-     * @param filename  nombre con el que ai-service lo identificará (su "source")
-     * @param metadataJson metadatos como string JSON, o null
-     */
     public void indexDocument(byte[] fileBytes, String filename, String metadataJson) {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
-        // Parte "file": Content-Disposition con filename EXPLÍCITO.
-        // Esto es lo que faltaba: sin filename, FastAPI no la trata como UploadFile.
         HttpHeaders fileHeaders = new HttpHeaders();
         fileHeaders.setContentDispositionFormData("file", filename);
         fileHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         parts.add("file", new HttpEntity<>(fileBytes, fileHeaders));
 
-        // Parte "metadata": string JSON como campo de formulario normal
         if (metadataJson != null) {
             parts.add("metadata", metadataJson);
         }
@@ -71,5 +62,13 @@ public class AiServiceClient {
                 .body(new QueryRequest(question, filters))
                 .retrieve()
                 .body(QueryResponse.class);
+    }
+
+    /** Borra el documento en ai-service (ChromaDB) por su sourceId. */
+    public void deleteDocument(String sourceId) {
+        restClient.delete()
+                .uri("/documents/{source}", sourceId)
+                .retrieve()
+                .toBodilessEntity();
     }
 }

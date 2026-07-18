@@ -1,6 +1,7 @@
 package es.urjc.manualservice.documento;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.List;
 
 @RestController
@@ -37,7 +39,7 @@ public class DocumentoController {
 
         URI location = uriBuilder.path("/api/documentos/{id}")
                 .buildAndExpand(creado.id()).toUri();
-        return ResponseEntity.accepted().location(location).body(creado);   // 202
+        return ResponseEntity.accepted().location(location).body(creado);
     }
 
     @GetMapping("/asignaturas/{asignaturaId}/documentos")
@@ -48,6 +50,27 @@ public class DocumentoController {
     @GetMapping("/documentos/{id}")
     public DocumentoResponse obtener(@PathVariable Long id) {
         return service.obtener(id);
+    }
+
+    @GetMapping("/documentos/{id}/archivo")
+    public ResponseEntity<byte[]> verArchivo(@PathVariable Long id) {
+        ArchivoDocumento archivo = service.obtenerArchivo(id);
+        MediaType tipo = detectarTipo(archivo.nombreFichero());
+        return ResponseEntity.ok()
+                .contentType(tipo)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + archivo.nombreFichero() + "\"")
+                .body(archivo.contenido());
+    }
+
+    private MediaType detectarTipo(String nombreFichero) {
+        if (nombreFichero.toLowerCase().endsWith(".md")) {
+            return MediaType.TEXT_PLAIN;   // el navegador lo abre como texto legible
+        }
+        String probable = URLConnection.guessContentTypeFromName(nombreFichero);
+        return probable != null
+                ? MediaType.parseMediaType(probable)
+                : MediaType.APPLICATION_OCTET_STREAM;
     }
 
     @DeleteMapping("/documentos/{id}")

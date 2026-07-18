@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' · Manual Service'">Manual Service</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css(v=2)}">
+</head>
+<body>
+    <header th:fragment="nav">
+        <nav class="barra">
+            <a th:href="@{/}" class="marca">📚 Manual Service</a>
+            <div class="enlaces">
+                <a th:href="@{/asignaturas}">Asignaturas</a>
+                <a th:href="@{/documentos}">Documentos</a>
+                <a th:href="@{/preguntar}">Preguntar</a>
+            </div>
+        </nav>
+    </header>
+
+    <footer th:fragment="pie">
+        <small>Asistente de estudio personal · URJC</small>
+    </footer>
+</body>
+</html>
