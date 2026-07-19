@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/comunes :: head('Preguntar')}"></head>
-<body>
+<body class="pagina-chat">
 <header th:replace="~{fragments/comunes :: nav}"></header>
 
-<main class="contenedor chat-contenedor">
+<main class="chat-pagina">
     <div class="chat-cabecera">
         <h1>Preguntar</h1>
         <form th:action="@{/preguntar/nueva}" method="post" th:if="${!#lists.isEmpty(historial)}">
@@ -44,6 +44,8 @@
         </div>
     </div>
 
+    <button type="button" id="botonBajar" class="boton-bajar" aria-label="Ir al último mensaje">↓</button>
+
     <form th:action="@{/preguntar}" method="post" class="chat-formulario" id="formPregunta">
         <select name="asignaturaSiglas" class="chat-select">
             <option value="">Todas</option>
@@ -64,15 +66,34 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
 <script>
-    // Renderiza markdown -> HTML en las respuestas del asistente, saneando el HTML resultante.
     document.querySelectorAll('.md-render').forEach(function (el) {
-        var raw = el.textContent;              // texto original (Thymeleaf ya lo había escapado al pintar)
+        var raw = el.textContent;
         var html = marked.parse(raw);
         el.innerHTML = DOMPurify.sanitize(html);
     });
 
     var ventana = document.getElementById('chatVentana');
-    if (ventana) ventana.scrollTop = ventana.scrollHeight;
+    var botonBajar = document.getElementById('botonBajar');
+
+    function estaAlFinal() {
+        return ventana.scrollHeight - ventana.scrollTop - ventana.clientHeight < 40;
+    }
+
+    function actualizarBotonBajar() {
+        botonBajar.classList.toggle('visible', !estaAlFinal());
+    }
+
+    if (ventana) {
+        ventana.scrollTop = ventana.scrollHeight;   // arranca mostrando el último mensaje
+        ventana.addEventListener('scroll', actualizarBotonBajar);
+        actualizarBotonBajar();
+    }
+
+    if (botonBajar) {
+        botonBajar.addEventListener('click', function () {
+            ventana.scrollTo({ top: ventana.scrollHeight, behavior: 'smooth' });
+        });
+    }
 
     var form = document.getElementById('formPregunta');
     if (form) {
