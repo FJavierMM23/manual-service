@@ -79,6 +79,12 @@ docker compose down
 ```
 Los datos (PostgreSQL, el índice de ChromaDB, y los documentos subidos) persisten en volúmenes Docker entre arranques.
 
+## Parada limpia
+**Linux / macOS:**
+./parar.sh
+**Windows (PowerShell):**
+.\parar.ps1
+
 ## Arranque manual (paso a paso, sin el script)
 
 Útil para entender qué hace el script, o si prefieres controlar cada paso.
@@ -212,4 +218,4 @@ Usa [Testcontainers](https://testcontainers.com/) para levantar un PostgreSQL re
 
 ## Licencia
 
-Proyecto personal de aprendizaje (URJC, Ingeniería de Computadores).
+Proyecto personal de aprendizaje - Uso libre.
