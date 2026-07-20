@@ -4,22 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo} + ' · Manual Service'">Manual Service</title>
-    <link rel="stylesheet" th:href="@{/css/estilo.css(v=4)}">
+    <script>
+        // Aplica el tema guardado ANTES de pintar, para evitar el parpadeo
+        // del tema claro por defecto seguido de un salto al tema elegido.
+        (function () {
+            var guardado = localStorage.getItem('tema');
+            document.documentElement.setAttribute('data-theme', guardado || 'claro');
+        })();
+    </script>
+    <link rel="stylesheet" th:href="@{/css/temas.css(v=1)}">
+    <link rel="stylesheet" th:href="@{/css/estilo.css(v=7)}">
 </head>
 <body>
-    <header th:fragment="nav">
+    <th:block th:fragment="nav">
+    <header>
         <nav class="barra">
-            <a th:href="@{/}" class="marca">📚 Manual Service</a>
-            <div class="enlaces">
-                <a th:href="@{/asignaturas}">Asignaturas</a>
-                <a th:href="@{/documentos}">Documentos</a>
-                <a th:href="@{/preguntar}">Preguntar</a>
+            <a th:href="@{/}" class="marca">Manual Service</a>
+            <div class="nav-derecha">
+                <div class="enlaces">
+                    <a th:href="@{/asignaturas}">Asignaturas</a>
+                    <a th:href="@{/documentos}">Documentos</a>
+                    <a th:href="@{/preguntar}">Preguntar</a>
+                </div>
+                <div class="selector-temas" role="group" aria-label="Elegir tema de color">
+                    <button type="button" class="swatch" data-tema="claro" title="Claro"
+                            style="background: linear-gradient(135deg, #f7f7f8 50%, #4f46e5 50%);"></button>
+                    <button type="button" class="swatch" data-tema="medianoche" title="Medianoche"
+                            style="background: linear-gradient(135deg, #020202 50%, #B2D5E5 50%);"></button>
+                    <button type="button" class="swatch" data-tema="oceano" title="Océano"
+                            style="background: linear-gradient(135deg, #002B4C 50%, #F59E71 50%);"></button>
+                    <button type="button" class="swatch" data-tema="aurora" title="Aurora"
+                            style="background: linear-gradient(135deg, #0C1433 50%, #36D2FF 50%);"></button>
+                </div>
             </div>
         </nav>
     </header>
+    <script>
+        (function () {
+            var botones = document.querySelectorAll('.selector-temas .swatch');
+            var actual = document.documentElement.getAttribute('data-theme') || 'claro';
+
+            function marcarActivo(tema) {
+                botones.forEach(function (b) {
+                    b.classList.toggle('activo', b.dataset.tema === tema);
+                });
+            }
+
+            botones.forEach(function (boton) {
+                boton.addEventListener('click', function () {
+                    var tema = boton.dataset.tema;
+                    document.documentElement.setAttribute('data-theme', tema);
+                    localStorage.setItem('tema', tema);
+                    marcarActivo(tema);
+                });
+            });
+
+            marcarActivo(actual);
+        })();
+    </script>
+    </th:block>
 
     <footer th:fragment="pie">
-        <small>Asistente de estudio personal · URJC</small>
+        <small>Asistente de estudio personal</small>
     </footer>
 </body>
 </html>

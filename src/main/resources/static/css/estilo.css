@@ -1,12 +1,3 @@
-:root {
-    --fondo: #f7f7f8;
-    --texto: #1f2328;
-    --tenue: #656d76;
-    --acento: #4f46e5;
-    --borde: #e1e4e8;
-    --tarjeta: #ffffff;
-}
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -17,6 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .barra {
@@ -28,13 +20,29 @@ body {
     border-bottom: 1px solid var(--borde);
 }
 .marca { font-weight: 700; font-size: 1.1rem; text-decoration: none; color: var(--texto); }
+
+.nav-derecha { display: flex; align-items: center; gap: 1.4rem; }
 .enlaces a {
     margin-left: 1.2rem;
     text-decoration: none;
     color: var(--tenue);
     font-weight: 500;
 }
+.enlaces a:first-child { margin-left: 0; }
 .enlaces a:hover { color: var(--acento); }
+
+.selector-temas { display: flex; gap: 0.4rem; }
+.swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s, border-color 0.15s;
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.activo { border-color: var(--acento); }
 
 .contenedor {
     flex: 1;
@@ -75,13 +83,19 @@ h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
     overflow: hidden;
 }
 .tabla th, .tabla td { padding: 0.7rem 1rem; text-align: left; border-bottom: 1px solid var(--borde); }
-.tabla th { background: #fafbfc; font-size: 0.85rem; color: var(--tenue); text-transform: uppercase; letter-spacing: 0.03em; }
+.tabla th {
+    background: color-mix(in srgb, var(--texto) 4%, var(--tarjeta));
+    font-size: 0.85rem;
+    color: var(--tenue);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
 .tabla tr:last-child td { border-bottom: none; }
 
 .chip {
     display: inline-block;
     padding: 0.15rem 0.55rem;
-    background: #eef2ff;
+    background: color-mix(in srgb, var(--acento) 15%, var(--tarjeta));
     color: var(--acento);
     border-radius: 6px;
     font-weight: 600;
@@ -103,7 +117,7 @@ footer {
     display: inline-block;
     padding: 0.55rem 1.1rem;
     background: var(--acento);
-    color: #fff;
+    color: var(--acento-texto);
     border: none;
     border-radius: 8px;
     font-weight: 600;
@@ -124,10 +138,13 @@ footer {
     border-radius: 8px;
     font-size: 0.95rem;
     font-family: inherit;
+    background: var(--tarjeta);
+    color: var(--texto);
 }
 .campo input:focus, .campo select:focus { outline: none; border-color: var(--acento); }
+.campo input::placeholder { color: var(--tenue); }
 
-.error { color: #c0392b; font-size: 0.85rem; }
+.error { color: #e05252; font-size: 0.85rem; }
 
 .acciones { display: flex; gap: 0.7rem; margin-top: 0.5rem; }
 
@@ -150,6 +167,8 @@ footer {
     padding: 0.4rem 0.6rem;
     border: 1px solid var(--borde);
     border-radius: 6px;
+    background: var(--tarjeta);
+    color: var(--texto);
 }
 
 .badge {
@@ -169,10 +188,19 @@ footer {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1rem;
-    opacity: 0.6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+    border-radius: 6px;
+    color: var(--tenue);
+    transition: color 0.15s, background-color 0.15s;
 }
-.boton-icono:hover { opacity: 1; }
+.boton-icono svg { width: 18px; height: 18px; }
+.boton-icono:hover { background: color-mix(in srgb, var(--texto) 8%, transparent); }
+
+.icono-ver:hover { color: var(--acento); }
+.icono-eliminar:hover { color: #e05252; }
 
 .enlace-discreto {
     font-size: 0.82rem;
@@ -182,67 +210,7 @@ footer {
 }
 .enlace-discreto:hover { text-decoration: underline; }
 
-.formulario-pregunta {
-    display: flex;
-    gap: 0.8rem;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-}
-.formulario-pregunta .campo { flex: 1; min-width: 220px; margin: 0; }
-.campo-filtro { flex: 0 0 220px; }
-.formulario-pregunta .boton { height: fit-content; }
-
-.error-bloque {
-    background: #fde8e8;
-    color: #b91c1c;
-    padding: 0.8rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-}
-
-.respuesta {
-    background: var(--tarjeta);
-    border: 1px solid var(--borde);
-    border-radius: 10px;
-    padding: 1.5rem;
-}
-.respuesta h2 { font-size: 1.1rem; margin-bottom: 0.7rem; }
-.respuesta h3 { font-size: 0.95rem; margin: 1.2rem 0 0.6rem; color: var(--tenue); }
-
-.texto-respuesta {
-    white-space: pre-wrap;   /* conserva saltos de línea del texto del LLM */
-    line-height: 1.7;
-}
-
-.lista-fuentes { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
-.lista-fuentes li { font-size: 0.85rem; color: var(--tenue); }
-.chip-fuente { background: #f1f2f4; color: var(--texto); }
-.puntuacion { color: #9aa1a9; margin-left: 0.3rem; }
-
-.boton-pequeno { padding: 0.35rem 0.8rem; font-size: 0.85rem; }
-
-.fila-mensaje { display: flex; align-items: flex-end; gap: 0.5rem; }
-.fila-usuario { justify-content: flex-end; }
-.fila-asistente { justify-content: flex-start; }
-
-.boton-enviar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--acento);
-    color: #fff;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: opacity 0.15s;
-}
-.boton-enviar:hover { opacity: 0.88; }
-.boton-enviar:disabled { opacity: 0.5; cursor: not-allowed; }
+/* ===== Chat / Preguntar ===== */
 
 .chat-pagina {
     width: 100%;
@@ -250,10 +218,10 @@ footer {
     margin: 0 auto;
     padding: 1.5rem 1.5rem 1rem;
     flex: 1 1 auto;
-    min-height: 0;          /* clave: permite que este flex-item se acote en vez de crecer con el contenido */
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;        /* nada se escapa de aquí; solo chat-ventana hace scroll interno */
+    overflow: hidden;
     position: relative;
 }
 
@@ -270,7 +238,7 @@ footer {
 
 .chat-ventana {
     flex: 1 1 auto;
-    min-height: 0;           /* clave: mismo motivo, un nivel más adentro */
+    min-height: 0;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -303,8 +271,8 @@ footer {
     font-size: 0.95rem;
     flex-shrink: 0;
 }
-.avatar-usuario { background: #e0e0ff; }
-.avatar-asistente { background: #eef2ff; }
+.avatar-usuario { background: color-mix(in srgb, var(--acento) 22%, var(--tarjeta)); }
+.avatar-asistente { background: color-mix(in srgb, var(--acento) 10%, var(--tarjeta)); }
 
 .burbuja {
     padding: 0.7rem 1rem;
@@ -315,14 +283,14 @@ footer {
 .burbuja p { margin: 0; }
 
 .burbuja-usuario {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
-    color: #fff;
+    background: linear-gradient(135deg, var(--acento), var(--acento-2));
+    color: var(--acento-texto);
     border-bottom-right-radius: 4px;
-    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--acento) 35%, transparent);
 }
 
 .burbuja-asistente {
-    background: #ffffff;
+    background: var(--tarjeta);
     border: 1px solid var(--borde);
     border-bottom-left-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -342,7 +310,7 @@ footer {
 .md-render ul, .md-render ol { padding-left: 1.3rem; margin: 0.4rem 0; }
 .md-render li { margin-bottom: 0.3rem; }
 .md-render code {
-    background: #f1f2f4;
+    background: color-mix(in srgb, var(--texto) 8%, var(--tarjeta));
     padding: 0.1rem 0.35rem;
     border-radius: 4px;
     font-size: 0.85em;
@@ -350,17 +318,20 @@ footer {
 }
 
 .chat-fuentes { margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--borde); }
-.chip-fuente { background: #f1f2f4; color: var(--tenue); font-size: 0.78rem; font-weight: 400; }
+.chip-fuente {
+    background: color-mix(in srgb, var(--texto) 6%, var(--tarjeta));
+    color: var(--tenue);
+    font-size: 0.78rem;
+    font-weight: 400;
+}
 
-/* Ya NO usa sticky: al no poder desbordarse chat-pagina, esto siempre
-   queda visible sin trucos de posicionamiento. */
 .chat-formulario {
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.4rem 0.4rem 0.4rem 0.9rem;
-    background: #fff;
+    background: var(--tarjeta);
     border: 1px solid var(--borde);
     border-radius: 999px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -372,7 +343,8 @@ footer {
 
 .chat-select {
     border: none;
-    background: #f1f2f4;
+    background: color-mix(in srgb, var(--texto) 6%, var(--tarjeta));
+    color: var(--texto);
     border-radius: 999px;
     padding: 0.45rem 0.7rem;
     font-size: 0.82rem;
@@ -380,22 +352,31 @@ footer {
 }
 .chat-select:focus { outline: none; }
 
+.chat-select-modelo {
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .chat-input {
     flex: 1;
     border: none;
     background: transparent;
+    color: var(--texto);
     padding: 0.5rem 0.2rem;
     font-size: 0.95rem;
     font-family: inherit;
 }
 .chat-input:focus { outline: none; }
+.chat-input::placeholder { color: var(--tenue); }
 
 .boton-enviar {
     width: 38px;
     height: 38px;
     border-radius: 50%;
     background: var(--acento);
-    color: #fff;
+    color: var(--acento-texto);
     border: none;
     display: flex;
     align-items: center;
@@ -416,7 +397,7 @@ footer {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--tarjeta);
     border: 1px solid var(--borde);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     color: var(--acento);
@@ -433,10 +414,6 @@ footer {
     transform: translateX(-50%) translateY(0);
 }
 
-/* Solo en la página de chat: el body deja de crecer con el contenido
-   y se ancla a la altura real de la ventana. Así el desbordamiento
-   queda contenido dentro de .chat-ventana en vez de escaparse hacia
-   arriba y arrastrar toda la página (cabecera incluida). */
 body.pagina-chat {
     height: 100vh;
     overflow: hidden;

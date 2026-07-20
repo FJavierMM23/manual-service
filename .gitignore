@@ -34,3 +34,5 @@ build/
 
 ### Documentos almacenados ###
 documentos-almacenados/
+
+.env
