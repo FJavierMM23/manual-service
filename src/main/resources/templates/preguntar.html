@@ -14,7 +14,7 @@
 
     <div class="chat-ventana" id="chatVentana">
         <div th:if="${#lists.isEmpty(historial)}" class="chat-vacio">
-            <p>Hazme una pregunta sobre tus apuntes 📚</p>
+            <p>Hazme una pregunta sobre tus apuntes</p>
         </div>
 
         <div th:each="m : ${historial}" class="chat-turno">
@@ -53,6 +53,13 @@
                     th:value="${a.siglas()}"
                     th:text="${a.siglas()}"
                     th:selected="${a.siglas() == asignaturaSiglas}">
+            </option>
+        </select>
+        <select name="model" class="chat-select chat-select-modelo" title="Modelo LLM">
+            <option th:each="m : ${modelos}"
+                    th:value="${m}"
+                    th:text="${m}"
+                    th:selected="${m == modeloSeleccionado}">
             </option>
         </select>
         <input type="text" name="pregunta" class="chat-input" placeholder="Escribe tu pregunta..."

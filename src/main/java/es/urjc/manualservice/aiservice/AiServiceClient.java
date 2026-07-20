@@ -51,15 +51,16 @@ public class AiServiceClient {
                 .toBodilessEntity();
     }
 
-    public QueryResponse query(String question, String asignaturaSiglas) {
+    public QueryResponse query(String question, String asignaturaSiglas, String model) {
         Map<String, String> filters = (asignaturaSiglas == null || asignaturaSiglas.isBlank())
                 ? null
                 : Map.of("asignatura", asignaturaSiglas);
+        String modeloElegido = (model == null || model.isBlank()) ? null : model;
 
         return restClient.post()
                 .uri("/query")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new QueryRequest(question, filters))
+                .body(new QueryRequest(question, filters, modeloElegido))
                 .retrieve()
                 .body(QueryResponse.class);
     }
@@ -70,5 +71,13 @@ public class AiServiceClient {
                 .uri("/documents/{source}", sourceId)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    /** Lista los modelos LLM disponibles en Ollama (vía ai-service) y el que es por defecto. */
+    public ModelsResponse listModels() {
+        return restClient.get()
+                .uri("/models")
+                .retrieve()
+                .body(ModelsResponse.class);
     }
 }

@@ -3,8 +3,9 @@ package es.urjc.manualservice.aiservice;
 import java.util.Map;
 
 // Lo que enviamos a POST /query de ai-service.
-// filters es opcional (null = sin filtro); si va, es {"asignatura": "PC"}.
+// filters y model son opcionales (null = sin filtro / modelo por defecto).
 public record QueryRequest(
         String question,
-        Map<String, String> filters
+        Map<String, String> filters,
+        String model
 ) {}

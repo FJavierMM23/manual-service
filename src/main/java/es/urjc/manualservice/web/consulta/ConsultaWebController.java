@@ -1,5 +1,6 @@
 package es.urjc.manualservice.web.consulta;
 
+import es.urjc.manualservice.aiservice.ModelsResponse;
 import es.urjc.manualservice.asignatura.AsignaturaService;
 import es.urjc.manualservice.consulta.ConsultaService;
 import es.urjc.manualservice.consulta.PreguntaRequest;
@@ -27,24 +28,25 @@ public class ConsultaWebController {
 
     @GetMapping("/preguntar")
     public String vista(@RequestParam(required = false) String asignaturaSiglas,
-                        HttpSession session, Model model) {
-        model.addAttribute("asignaturas", asignaturaService.listar());
-        model.addAttribute("asignaturaSiglas", asignaturaSiglas);
-        model.addAttribute("historial", obtenerHistorial(session));
+                        @RequestParam(required = false) String model,
+                        HttpSession session, Model uiModel) {
+        rellenarSelectores(uiModel, asignaturaSiglas, model);
+        uiModel.addAttribute("historial", obtenerHistorial(session));
         return "preguntar";
     }
 
     @PostMapping("/preguntar")
     public String preguntar(@RequestParam String pregunta,
                             @RequestParam(required = false) String asignaturaSiglas,
-                            HttpSession session, Model model) {
+                            @RequestParam(required = false) String model,
+                            HttpSession session, Model uiModel) {
 
         List<MensajeChat> historial = obtenerHistorial(session);
 
         if (pregunta != null && !pregunta.isBlank()) {
             try {
                 var respuesta = consultaService.preguntar(
-                        new PreguntaRequest(pregunta, asignaturaSiglas));
+                        new PreguntaRequest(pregunta, asignaturaSiglas, model));
                 historial.add(MensajeChat.deUsuarioYRespuesta(pregunta, respuesta));
             } catch (Exception e) {
                 historial.add(MensajeChat.deError(pregunta,
@@ -53,9 +55,8 @@ public class ConsultaWebController {
             session.setAttribute(SESSION_KEY, historial);
         }
 
-        model.addAttribute("asignaturas", asignaturaService.listar());
-        model.addAttribute("asignaturaSiglas", asignaturaSiglas);
-        model.addAttribute("historial", historial);
+        rellenarSelectores(uiModel, asignaturaSiglas, model);
+        uiModel.addAttribute("historial", historial);
         return "preguntar";
     }
 
@@ -63,6 +64,30 @@ public class ConsultaWebController {
     public String nuevaConversacion(HttpSession session) {
         session.removeAttribute(SESSION_KEY);
         return "redirect:/preguntar";
+    }
+
+    /**
+     * Rellena los dos desplegables (asignatura y modelo LLM). Si ai-service
+     * no responde al listar modelos, degrada a lista vacía en vez de romper
+     * la página: el formulario sigue siendo usable con el modelo por defecto.
+     */
+    private void rellenarSelectores(Model uiModel, String asignaturaSiglas, String modeloSeleccionado) {
+        uiModel.addAttribute("asignaturas", asignaturaService.listar());
+        uiModel.addAttribute("asignaturaSiglas", asignaturaSiglas);
+
+        List<String> modelos = List.of();
+        String modeloPorDefecto = null;
+        try {
+            ModelsResponse resp = consultaService.listarModelos();
+            modelos = resp.models();
+            modeloPorDefecto = resp.defaultModel();
+        } catch (Exception ignored) {
+            // ai-service caído: seguimos sin lista de modelos.
+        }
+        uiModel.addAttribute("modelos", modelos);
+        uiModel.addAttribute("modeloSeleccionado",
+                (modeloSeleccionado != null && !modeloSeleccionado.isBlank())
+                        ? modeloSeleccionado : modeloPorDefecto);
     }
 
     @SuppressWarnings("unchecked")
