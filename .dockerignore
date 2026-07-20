@@ -1,0 +1,6 @@
+target/
+documentos-almacenados/
+.git/
+.idea/
+.vscode/
+*.log

@@ -1,12 +1,11 @@
 services:
+
   postgres:
-    image: postgres:17          # o 18 si ya está estable
+    image: postgres:17
     environment:
       POSTGRES_DB: manuales
       POSTGRES_USER: manuales
-      POSTGRES_PASSWORD: cambiame
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cambiame}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -14,6 +13,50 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
+
+  ai-service:
+    image: ai-service:latest      # construida aparte: cd AI-service && docker build -t ai-service:latest .
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11434
+      LLM_MODEL: ${LLM_MODEL:-gemma4:e4b-it-q4_K_M}
+      EMBEDDING_MODEL: bge-m3
+      DEFAULT_TOP_K: 5
+      DEFAULT_MIN_SCORE: 0.7
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # necesario en Linux
+    volumes:
+      - chroma_data:/app/chroma_db
+      - manuales_data:/app/manuales
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  manual-service:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/manuales
+      DB_USER: manuales
+      DB_PASSWORD: ${DB_PASSWORD:-cambiame}
+      AI_SERVICE_URL: http://ai-service:8000
+      DOCUMENTO_STORAGE_PATH: /app/documentos-almacenados
+    volumes:
+      - documentos_almacenados:/app/documentos-almacenados
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  chroma_data:
+  manuales_data:
+  documentos_almacenados:
